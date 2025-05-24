@@ -1,0 +1,10 @@
+# Output / dependencies
+node_modules
+dist
+coverage
+.env
+*.log
+
+# Build and runtime artifacts
+.yarn/
+.pnp.*
