@@ -1,0 +1,4 @@
+[
+  { "url": "https://buenro-tech-assessment-materials.s3.eu-north-1.amazonaws.com/structured_generated_data.json", "type": "source1" },
+  { "url": "https://buenro-tech-assessment-materials.s3.eu-north-1.amazonaws.com/large_generated_data.json", "type": "source2" }
+]

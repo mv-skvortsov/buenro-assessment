@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+
+import { DataMapperModule } from './data-mapper/data-mapper.module';
+import { IngestionModule } from './ingestion/ingestion.module';
+import { ListingModule } from './listing/listing.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ envFilePath: ['.env.local', '.env'], isGlobal: true, cache: true }),
+    DataMapperModule,
+    IngestionModule,
+    ListingModule,
+  ],
 })
 export class AppModule {}
