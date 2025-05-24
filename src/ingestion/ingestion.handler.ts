@@ -1,4 +1,4 @@
-import { Source } from '@/common';
+import { DataPipe } from '@/common';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { IngestionService } from './ingestion.service';
@@ -7,8 +7,8 @@ import { IngestionService } from './ingestion.service';
 export class IngestionHandler {
   constructor(private readonly service: IngestionService) {}
 
-  @OnEvent('ingest.*', { async: true })
-  onIngestStart(event: Source) {
-    this.service.ingest(event);
+  @OnEvent('ingest.start', { async: true })
+  async onIngest(pipe: DataPipe) {
+    await this.service.ingest(pipe);
   }
 }

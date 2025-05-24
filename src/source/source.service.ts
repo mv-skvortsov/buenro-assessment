@@ -1,4 +1,4 @@
-import { Source } from '@/common';
+import { DataPipe } from '@/common';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SchedulerRegistry } from '@nestjs/schedule';
@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class SourceService implements OnModuleInit {
   private readonly logger = new Logger(SourceService.name);
+  private pipes: DataPipe[] = [];
 
   constructor(
     private readonly schedulerRegistry: SchedulerRegistry,
@@ -17,17 +18,24 @@ export class SourceService implements OnModuleInit {
 
   onModuleInit() {
     const configPath = path.join(__dirname, 'config/sources.json');
-    const sources = JSON.parse(fs.readFileSync(configPath, 'utf-8')) as Source[];
+    this.pipes = JSON.parse(fs.readFileSync(configPath, 'utf-8')) as DataPipe[];
 
-    sources.forEach((source) => {
+    this.pipes.forEach((pipe) => {
       const intervalName = `ingest.${uuidv4()}`;
+
       const interval = setInterval(() => {
-        this.logger.log(`Ingesting ${source.name}...`);
-        this.eventEmitter.emit(intervalName, source);
-      }, source.interval * 1000);
+        this.eventEmitter.emit('ingest.start', pipe);
+      }, pipe.interval * 1000);
 
       this.schedulerRegistry.addInterval(intervalName, interval);
-      this.logger.log(`Scheduled ${source.name} every ${source.interval} seconds`);
+      this.logger.log(`Scheduled ${pipe.name} every ${pipe.interval} seconds`);
+    });
+  }
+
+  onApplicationBootstrap() {
+    this.pipes.forEach((pipe) => {
+      this.logger.log(`Immediately emitting for ${pipe.name}`);
+      this.eventEmitter.emit('ingest.start', pipe);
     });
   }
 }
