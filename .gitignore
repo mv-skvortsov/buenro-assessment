@@ -22,6 +22,5 @@ tsconfig.build.tsbuildinfo
 !.yarn/versions
 
 # dotenv environment variable files
-.env
 .env.local
 
