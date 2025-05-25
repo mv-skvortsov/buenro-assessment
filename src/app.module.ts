@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-
+import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import { DataFetcherModule } from './data-fetcher/data-fetcher.module';
@@ -15,6 +15,13 @@ import { SourceModule } from './source/source.module';
     ConfigModule.forRoot({ envFilePath: ['.env.local', '.env'], isGlobal: true, cache: true }),
     EventEmitterModule.forRoot({ wildcard: true }),
     ScheduleModule.forRoot(),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI') || 'mongodb://localhost:27017/buenro',
+      }),
+      inject: [ConfigService],
+    }),
     DataFetcherModule,
     DataMapperModule,
     IngestionModule,

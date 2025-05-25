@@ -2,12 +2,21 @@ import { Injectable } from '@nestjs/common';
 
 import { DataMapper, Listing } from '@/common';
 import { ListingMapper } from '../decorators';
+import { Source1 } from '../types';
 
 @Injectable()
 @ListingMapper('source1')
 export class Source1Mapper implements DataMapper {
-  toListing(data: unknown): Promise<Listing> | Listing | null {
-    console.log('>> Source1Mapper.toListing data', data);
-    return data !== null && typeof data === 'object' && 'id' in data ? { id: data.id as string } : null;
+  toListing({ source, data }: { source: string; data: unknown }): Promise<Listing> | Listing | null {
+    const typed = data as Source1;
+    return {
+      source,
+      originalId: String(typed.id),
+      name: typed.name,
+      availability: typed.isAvailable,
+      pricePerNight: typed.priceForNight,
+      country: typed.address.country,
+      city: typed.address.city,
+    };
   }
 }
