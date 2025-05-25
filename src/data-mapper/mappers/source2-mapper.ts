@@ -12,6 +12,7 @@ export class Source2Mapper implements DataMapper {
     return {
       source,
       originalId: typed.id,
+      city: typed.city,
       availability: typed.availability,
       pricePerNight: typed.pricePerNight,
       priceSegment: typed.priceSegment,

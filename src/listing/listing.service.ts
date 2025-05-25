@@ -3,6 +3,7 @@ import { Listing } from '@/common';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ListingDto, ListingQueryDto, ListingSearchResultDto } from './dto';
 import { ListingDocument, ListingEntity } from './schemas';
 
 @Injectable()
@@ -32,5 +33,43 @@ export class ListingService {
     } catch (error) {
       this.logger.error(`Bulk upsert failed: ${(error as Error).message}`);
     }
+  }
+
+  async search(filters: ListingQueryDto): Promise<ListingSearchResultDto> {
+    const { name, city, country, availability, minPrice, maxPrice, priceSegment, skip = 0, limit = 20 } = filters;
+
+    const query = this.listingModel.find();
+
+    if (name) query.where('name').regex(new RegExp(name, 'i'));
+    if (city) query.where('city').regex(new RegExp(city, 'i'));
+    if (country) query.where('country').regex(new RegExp(country, 'i'));
+
+    if (availability !== undefined) query.where('availability').equals(availability);
+
+    if (minPrice !== undefined) query.where('pricePerNight').gte(minPrice);
+    if (maxPrice !== undefined) query.where('pricePerNight').lte(maxPrice);
+
+    if (priceSegment && priceSegment.length > 0) {
+      query.where('priceSegment').in(priceSegment);
+    }
+
+    const [rawResults, total] = await Promise.all([
+      query.skip(skip).limit(limit).lean().exec(),
+      this.listingModel.countDocuments(query.getFilter()),
+    ]);
+
+    const results = rawResults.map(
+      (doc) =>
+        ({
+          name: doc.name,
+          city: doc.city,
+          country: doc.country,
+          availability: doc.availability,
+          pricePerNight: doc.pricePerNight,
+          priceSegment: doc.priceSegment,
+        }) as ListingDto,
+    );
+
+    return { total, skip, limit, results };
   }
 }

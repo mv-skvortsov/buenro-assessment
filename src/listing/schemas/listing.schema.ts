@@ -16,8 +16,8 @@ export class ListingEntity implements Listing {
   @Prop()
   name?: string;
 
-  @Prop()
-  city?: string;
+  @Prop({ required: true })
+  city!: string;
 
   @Prop()
   country?: string;
@@ -41,4 +41,4 @@ ListingSchema.index({ city: 1 });
 ListingSchema.index({ country: 1 }, { sparse: true });
 ListingSchema.index({ availability: 1 });
 ListingSchema.index({ pricePerNight: 1 });
-ListingSchema.index({ priceSegment: 1 });
+ListingSchema.index({ priceSegment: 1 }, { sparse: true });

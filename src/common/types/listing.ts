@@ -5,7 +5,7 @@ export interface Listing {
   originalId: string;
 
   name?: string;
-  city?: string;
+  city: string;
   country?: string;
   availability: boolean;
   pricePerNight: number;
