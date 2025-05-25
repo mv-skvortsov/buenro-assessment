@@ -1,7 +1,9 @@
-// listing.service.ts
 import { Listing } from '@/common';
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cache } from 'cache-manager';
+import * as crypto from 'crypto';
 import { Model } from 'mongoose';
 import { ListingDto, ListingQueryDto, ListingSearchResultDto } from './dto';
 import { ListingDocument, ListingEntity } from './schemas';
@@ -13,6 +15,8 @@ export class ListingService {
   constructor(
     @InjectModel(ListingEntity.name)
     private readonly listingModel: Model<ListingDocument>,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async bulkUpsert(listings: Listing[]): Promise<void> {
@@ -36,6 +40,13 @@ export class ListingService {
   }
 
   async search(filters: ListingQueryDto): Promise<ListingSearchResultDto> {
+    const cacheKey = this.buildCacheKey(filters);
+    const cached = await this.cacheManager.get<ListingSearchResultDto>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
     const { name, city, country, availability, minPrice, maxPrice, priceSegment, skip = 0, limit = 20 } = filters;
 
     const query = this.listingModel.find();
@@ -70,6 +81,19 @@ export class ListingService {
         }) as ListingDto,
     );
 
-    return { total, skip, limit, results };
+    const response: ListingSearchResultDto = {
+      total,
+      skip,
+      limit,
+      results,
+    };
+
+    await this.cacheManager.set(cacheKey, response, 60000);
+
+    return response;
+  }
+
+  private buildCacheKey(filters: ListingQueryDto): string {
+    return `search:${crypto.createHash('sha256').update(JSON.stringify(filters)).digest('hex')}`;
   }
 }

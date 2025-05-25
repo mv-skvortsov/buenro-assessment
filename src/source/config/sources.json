@@ -1,2 +1,20 @@
 [
+  {
+    "name": "Source 1",
+    "source": {
+      "type": "url",
+      "url": "https://buenro-tech-assessment-materials.s3.eu-north-1.amazonaws.com/structured_generated_data.json"
+    },
+    "mapper": "source1",
+    "interval": 3600
+  },
+  {
+    "name": "Source 2",
+    "source": {
+      "type": "url",
+      "url": "https://buenro-tech-assessment-materials.s3.eu-north-1.amazonaws.com/large_generated_data.json"
+    },
+    "mapper": "source2",
+    "interval": 86400
+  }
 ]

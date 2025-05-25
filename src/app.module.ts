@@ -1,9 +1,9 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-
 import { DataFetcherModule } from './data-fetcher/data-fetcher.module';
 import { DataMapperModule } from './data-mapper/data-mapper.module';
 import { IngestionModule } from './ingestion/ingestion.module';
@@ -22,6 +22,7 @@ import { SourceModule } from './source/source.module';
       }),
       inject: [ConfigService],
     }),
+    CacheModule.register({ isGlobal: true }),
     DataFetcherModule,
     DataMapperModule,
     IngestionModule,
